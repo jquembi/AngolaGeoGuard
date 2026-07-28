@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    excludePaths:
+        - src/Facades
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        # As Facades e o padrao __call dinamico do Eloquent geram falsos
+        # positivos previsiveis neste nivel de rigor.
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'

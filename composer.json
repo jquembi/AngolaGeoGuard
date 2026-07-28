@@ -1,0 +1,86 @@
+{
+    "name": "josequembi/angola-geoguard",
+    "description": "Pacote PHP e Laravel para geolocalizacao, geofencing, controlo territorial, restricao de acesso e seguranca geoespacial em Angola.",
+    "type": "library",
+    "license": "proprietary",
+    "keywords": [
+        "angola",
+        "geofencing",
+        "geolocation",
+        "laravel",
+        "geospatial",
+        "access-control",
+        "saas",
+        "multi-tenant"
+    ],
+    "homepage": "https://github.com/josequembi/angola-geoguard",
+    "support": {
+        "issues": "https://github.com/josequembi/angola-geoguard/issues",
+        "source": "https://github.com/josequembi/angola-geoguard"
+    },
+    "authors": [
+        {
+            "name": "Jose Quembi"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-json": "*",
+        "ramsey/uuid": "^4.7"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "phpunit/phpunit": "^11.0",
+        "phpstan/phpstan": "^1.11",
+        "laravel/pint": "^1.16",
+        "rector/rector": "^1.2"
+    },
+    "suggest": {
+        "illuminate/support": "Requerido para a integracao Laravel (^10.0|^11.0|^12.0)",
+        "illuminate/database": "Requerido para migrations, models e query builder Laravel",
+        "illuminate/http": "Requerido para middleware e resolucao de pedidos Laravel",
+        "geoip2/geoip2": "Necessario para o provedor MaxMind GeoLite2/GeoIP2",
+        "predis/predis": "Recomendado para cache distribuido em producao"
+    },
+    "autoload": {
+        "psr-4": {
+            "JoseQuembi\\AngolaGeoGuard\\": "src/",
+            "JoseQuembi\\AngolaGeoGuard\\Database\\Seeders\\": "database/seeders/",
+            "JoseQuembi\\AngolaGeoGuard\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JoseQuembi\\AngolaGeoGuard\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JoseQuembi\\AngolaGeoGuard\\AngolaGeoGuardServiceProvider"
+            ],
+            "aliases": {
+                "GeoGuard": "JoseQuembi\\AngolaGeoGuard\\Facades\\GeoGuard"
+            }
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse",
+        "pint": "pint",
+        "pint:test": "pint --test",
+        "quality": [
+            "@pint:test",
+            "@stan",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
