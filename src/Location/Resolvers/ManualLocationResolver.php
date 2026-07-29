@@ -30,9 +30,6 @@ final class ManualLocationResolver implements LocationResolverInterface
         return 100;
     }
 
-    /**
-     * @param  array{coordinates?: Coordinates, country_code?: string, province_slug?: string, verified?: bool}  $context
-     */
     public function resolve(mixed $context): ?LocationResult
     {
         if (! is_array($context) || (! isset($context['coordinates']) && ! isset($context['country_code']))) {

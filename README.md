@@ -1,45 +1,69 @@
-Aqui está o texto com os erros ortográficos corrigidos:
-
-```markdown
 # Angola GeoGuard
 
-Pacote PHP/Laravel para geolocalização, geofencing, controlo territorial e
-segurança geoespacial em Angola — permite que qualquer aplicação restrinja
-acesso por país, província, geofence personalizado ou política híbrida,
-com suporte a multi-tenancy, auditoria e defesa em profundidade contra
-VPN/proxy/Tor.
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/josequembi/angola-geoguard.svg?style=flat-square)](https://packagist.org/packages/josequembi/angola-geoguard)
+[![Total Downloads](https://img.shields.io/packagist/dt/josequembi/angola-geoguard.svg?style=flat-square)](https://packagist.org/packages/josequembi/angola-geoguard)
+[![PHP Version](https://img.shields.io/packagist/php-v/josequembi/angola-geoguard.svg?style=flat-square)](https://packagist.org/packages/josequembi/angola-geoguard)
+[![License](https://img.shields.io/packagist/l/josequembi/angola-geoguard.svg?style=flat-square)](LICENSE)
 
-> **Estado do projeto**: núcleo, dados administrativos das 21 províncias,
-> motor de políticas, middleware e segurança de base implementados. As
-> geometrias oficiais das fronteiras provinciais **não estão incluídas** —
-> devem ser importadas de uma fonte oficial (ver [Dados geográficos](#dados-geograficos-e-geometrias)).
+**Angola GeoGuard** é um pacote PHP/Laravel para geolocalização, geofencing,
+controlo territorial, restrição de acesso e segurança geoespacial em Angola.
+Ele permite proteger rotas, APIs e fluxos internos por país, província,
+geofence personalizado, listas de permissão/bloqueio e políticas híbridas.
+
+O pacote foi desenhado para aplicações que precisam de decisões territoriais
+auditáveis: SaaS multi-tenant, portais institucionais, plataformas privadas,
+operações com restrições provinciais e sistemas que exigem defesa contra VPN,
+proxy, Tor, datacenters e padrões de tráfego suspeitos.
+
+> **Estado do projeto:** núcleo, modelos, migrations, seed das 21 províncias,
+> motor de políticas, middleware, auditoria, importação GeoJSON e deteção
+> comportamental estão implementados. As geometrias oficiais de fronteiras
+> provinciais **não são incluídas** no pacote; devem ser importadas de uma
+> fonte oficial ou verificável.
+
+## Destaques
+
+- Suporte às **21 províncias de Angola**, incluindo a reorganização de 2024.
+- API fluida via `GeoGuard::request($request)->province(...)->evaluate()`.
+- Middleware Laravel: `geo.angola`, `geo.province`, `geo.provinces`,
+  `geo.policy`, `geo.global`, `geo.no-vpn`, `geo.no-proxy` e `geo.verified`.
+- Motor espacial em memória, PostGIS ou MySQL/MariaDB Spatial.
+- Tokens de localização assinados por HMAC, com expiração e proteção contra replay.
+- Resolução segura de IP real atrás de proxies confiáveis.
+- Auditoria de decisões e comandos Artisan para diagnóstico, importação e limpeza.
+- Deteção comportamental heurística com contramedidas progressivas.
+- Comando `geoguard:calibrate` para sugerir limiares a partir do histórico real.
+- Testes automatizados com PHPUnit, PHPStan 2 e Laravel Pint.
 
 ## Índice
 
 - [Requisitos](#requisitos)
-- [Instalação](#instalacao)
-- [Configuração](#configuracao)
-- [Seed das 21 províncias](#seed-das-21-provincias)
-- [Uso básico (API fluida)](#uso-basico-api-fluida)
+- [Instalação](#instalação)
+- [Publicação da configuração e migrations](#publicação-da-configuração-e-migrations)
+- [Configuração básica](#configuração-básica)
+- [Seed das províncias](#seed-das-províncias)
+- [Uso rápido](#uso-rápido)
 - [Middleware](#middleware)
-- [Modos de acesso](#modos-de-acesso)
+- [Políticas e modos de acesso](#políticas-e-modos-de-acesso)
 - [Geofences personalizados](#geofences-personalizados)
-- [Multi-tenancy](#multi-tenancy)
-- [Provedores de geolocalização](#provedores-de-geolocalizacao)
-- [Motor espacial (memória / PostGIS / MySQL)](#motor-espacial)
-- [Segurança: proxies confiáveis e tokens de localização](#seguranca)
-- [Exceções de acesso](#excecoes-de-acesso)
-- [Dados geográficos e geometrias](#dados-geograficos-e-geometrias)
-- [Testes](#testes)
-- [Política de segurança](#politica-de-seguranca)
-- [Licenciamento](#licenciamento)
+- [Dados geográficos e fronteiras](#dados-geográficos-e-fronteiras)
+- [Provedores de geolocalização](#provedores-de-geolocalização)
+- [Segurança](#segurança)
+- [Deteção comportamental](#deteção-comportamental)
+- [Calibração por tráfego real](#calibração-por-tráfego-real)
+- [Comandos Artisan](#comandos-artisan)
+- [Qualidade e testes](#qualidade-e-testes)
+- [Publicação no Packagist](#publicação-no-packagist)
+- [Segurança e licença](#segurança-e-licença)
 
 ## Requisitos
 
-- PHP 8.3+
-- Laravel 10.x ou 11.x (opcional — o núcleo `Core/`, `Spatial/`, `Security/`
-  e `DTOs/` funciona sem Laravel)
-- `ext-json`
+- PHP 8.3 ou superior.
+- Laravel 10, 11 ou 12 para integração completa.
+- Extensão PHP `json`.
+
+O núcleo em `Core/`, `DTOs/`, `Enums/`, `Security/`, `Spatial/` e
+`ValueObjects/` é framework-agnostic e pode ser testado sem Laravel.
 
 ## Instalação
 
@@ -47,48 +71,67 @@ VPN/proxy/Tor.
 composer require josequembi/angola-geoguard
 ```
 
+## Publicação da configuração e migrations
+
 ```bash
 php artisan vendor:publish \
   --provider="JoseQuembi\AngolaGeoGuard\AngolaGeoGuardServiceProvider"
-```
 
-```bash
 php artisan migrate
 ```
 
-## Configuração
+Também pode publicar apenas grupos específicos:
 
-Todas as opções vivem em `config/angola-geoguard.php` e podem ser
-definidas por variável de ambiente:
+```bash
+php artisan vendor:publish --tag=angola-geoguard-config
+php artisan vendor:publish --tag=angola-geoguard-migrations
+```
+
+## Configuração básica
+
+Todas as opções ficam em `config/angola-geoguard.php` e podem ser
+controladas por variáveis de ambiente:
 
 ```env
 ANGOLA_GEOGUARD_ENABLED=true
 ANGOLA_GEOGUARD_DEFAULT_MODE=angola_only
 ANGOLA_GEOGUARD_FAILURE_MODE=deny
+
 ANGOLA_GEOGUARD_BLOCK_VPN=false
+ANGOLA_GEOGUARD_BLOCK_PROXY=false
 ANGOLA_GEOGUARD_BLOCK_TOR=true
+ANGOLA_GEOGUARD_BLOCK_DATACENTER=false
+
 ANGOLA_GEOGUARD_TRUSTED_PROXIES=173.245.48.0/20,10.0.0.0/8
 ANGOLA_GEOGUARD_TOKEN_KEY=troque-esta-chave-em-producao
 ANGOLA_GEOGUARD_SPATIAL_ENGINE=memory
 ```
 
-`FAILURE_MODE` controla o que acontece quando a localização não pode ser
-determinada: `deny` (recomendado para sistemas privados), `allow`,
-`challenge` ou `observe` (não bloqueia, apenas regista — útil em rollout
-gradual).
+`ANGOLA_GEOGUARD_FAILURE_MODE` define o que acontece quando a localização
+não pode ser resolvida:
 
-## Seed das 21 províncias
+- `deny`: nega por padrão, recomendado para sistemas privados.
+- `allow`: permite por padrão, útil apenas em cenários de baixo risco.
+- `challenge`: exige verificação adicional.
+- `observe`: não bloqueia, apenas regista a decisão.
+
+## Seed das províncias
+
+```bash
+php artisan geoguard:seed-angola
+```
+
+Ou diretamente pelo seeder:
 
 ```bash
 php artisan db:seed --class="JoseQuembi\AngolaGeoGuard\Database\Seeders\AngolaProvincesSeeder"
 ```
 
-Semeia o país Angola e as 21 províncias (incluindo Cuando, Cubango, Icolo
-e Bengo e Moxico Leste, criadas pela Lei n.º 14/24) com nome oficial,
-capital e código interno estável (`AO-HUI`, `AO-LUA`, etc). **A geometria
-fica `null`** até importares uma fonte oficial.
+O seed cria Angola e as 21 províncias com nome oficial, capital e código
+interno estável. As colunas de geometria ficam vazias até importar dados
+oficiais ou verificáveis.
 
-## Uso básico (API fluida)
+## Uso rápido
 
 ```php
 use JoseQuembi\AngolaGeoGuard\Facades\GeoGuard;
@@ -104,24 +147,28 @@ if ($decision->denied()) {
 }
 ```
 
-Apenas uma província:
+Restringir a uma província:
 
 ```php
-GeoGuard::request($request)->province('huila')->evaluate();
+GeoGuard::request($request)
+    ->province('huila')
+    ->evaluate();
 ```
 
-Várias províncias:
+Permitir várias províncias:
 
 ```php
-GeoGuard::request($request)->provinces(['huila', 'benguela', 'namibe'])->evaluate();
+GeoGuard::request($request)
+    ->provinces(['huila', 'benguela', 'namibe'])
+    ->evaluate();
 ```
 
-Por utilizador, com exceções temporárias aplicadas automaticamente:
+Usar uma política persistida e exceções temporárias por utilizador:
 
 ```php
 GeoGuard::request($request)
     ->forUser($user->id)
-    ->usingPolicy('government-private-access')
+    ->usingPolicy('acesso-interno-governo')
     ->evaluate();
 ```
 
@@ -140,7 +187,7 @@ Route::middleware(['geo.provinces:huila,benguela,namibe'])->group(function () {
     Route::get('/regiao-sul', SouthernRegionController::class);
 });
 
-Route::middleware(['geo.policy:government-private-access'])->group(function () {
+Route::middleware(['geo.policy:acesso-interno-governo'])->group(function () {
     Route::get('/sistema-interno', InternalSystemController::class);
 });
 
@@ -149,35 +196,34 @@ Route::middleware(['geo.global', 'geo.no-vpn'])->group(function () {
 });
 ```
 
-Middleware disponíveis: `geo.angola`, `geo.province:<slug>`,
-`geo.provinces:<slug1>,<slug2>`, `geo.global`, `geo.policy:<slug>`,
-`geo.no-vpn`, `geo.no-proxy`, `geo.verified` (exige token de localização
-assinado no cabeçalho `X-Location-Token`).
+A decisão fica disponível em:
 
-Cada middleware guarda a decisão em `$request->attributes->get('geo_access_decision')`
-para uso posterior (logging, UI condicional, etc).
+```php
+$request->attributes->get('geo_access_decision');
+```
 
-**Nunca** existe bypass por parâmetro público (`?bypass=true`) — por
-desenho, para evitar evasão trivial.
+Não existe bypass por parâmetro público, como `?bypass=true`. Essa decisão é
+intencional para evitar evasão trivial.
 
-## Modos de acesso
+## Políticas e modos de acesso
 
-| Modo | `AccessMode` | Descrição |
+| Modo | Enum | Descrição |
 |---|---|---|
-| Global | `GLOBAL` | Qualquer país; segurança (VPN/Tor) continua a ser aplicada |
-| Apenas Angola | `ANGOLA_ONLY` | Só permite `country_code === 'AO'` |
-| Uma província | `PROVINCE_ONLY` | Uma única província autorizada |
-| Várias províncias | `MULTIPLE_PROVINCES` | Lista de províncias autorizadas |
-| Geofence personalizado | `CUSTOM_GEOFENCE` | Polígono/círculo/bounding box definidos pela aplicação |
-| Lista de bloqueio | `BLOCKLIST` | Bloqueia províncias específicas, permite o resto |
-| Lista de permissão | `ALLOWLIST` | Só permite províncias explicitamente listadas |
-| Híbrido | `HYBRID` | Combina blocklist + allowlist (blocklist tem prioridade) |
+| Global | `GLOBAL` | Permite qualquer país; regras de segurança continuam ativas |
+| Apenas Angola | `ANGOLA_ONLY` | Permite apenas `country_code === 'AO'` |
+| Uma província | `PROVINCE_ONLY` | Permite uma única província |
+| Várias províncias | `MULTIPLE_PROVINCES` | Permite uma lista de províncias |
+| Geofence personalizado | `CUSTOM_GEOFENCE` | Avalia polígonos ou multipolígonos GeoJSON |
+| Lista de bloqueio | `BLOCKLIST` | Bloqueia províncias específicas |
+| Lista de permissão | `ALLOWLIST` | Permite apenas províncias listadas |
+| Híbrido | `HYBRID` | Combina lista de bloqueio e permissão; bloqueio tem prioridade |
 
 ## Geofences personalizados
 
 ```php
 use JoseQuembi\AngolaGeoGuard\DTOs\GeoAccessPolicyConfig;
 use JoseQuembi\AngolaGeoGuard\Enums\AccessMode;
+use JoseQuembi\AngolaGeoGuard\Services\GeoAccessPolicyEngine;
 
 $policy = GeoAccessPolicyConfig::fromArray([
     'mode' => AccessMode::CUSTOM_GEOFENCE,
@@ -185,47 +231,42 @@ $policy = GeoAccessPolicyConfig::fromArray([
 ]);
 
 $geometries = [
-    'sede-luanda' => $geofenceModel->geometry, // GeoJSON Polygon/MultiPolygon
+    'sede-luanda' => $geofenceModel->geometry,
 ];
 
-$decision = app(\JoseQuembi\AngolaGeoGuard\Services\GeoAccessPolicyEngine::class)
+$decision = app(GeoAccessPolicyEngine::class)
     ->evaluate($location, $policy, $geometries);
 ```
 
-Formas suportadas no model `Geofence`: `polygon`, `multipolygon`, `circle`
-(centro + raio), `bounding_box`, `corridor`.
+O motor em memória aceita `Polygon` e `MultiPolygon` no formato GeoJSON,
+incluindo polígonos com buracos.
 
-## Multi-tenancy
+## Dados geográficos e fronteiras
 
-Implementa `TenantContextInterface` na tua aplicação:
+O pacote inclui dados administrativos das províncias, mas **não inclui
+fronteiras oficiais**. Isso evita publicar limites territoriais inventados,
+desatualizados ou sem licença clara.
 
-```php
-final class AppTenantContext implements \JoseQuembi\AngolaGeoGuard\Contracts\TenantContextInterface
-{
-    public function __construct(private readonly Tenant $tenant) {}
+Para importar geometrias:
 
-    public function tenantId(): string { return (string) $this->tenant->id; }
-    public function tenantSlug(): ?string { return $this->tenant->slug; }
-    public function geoConfig(): array { return $this->tenant->geo_settings ?? []; }
-}
+```bash
+php artisan geoguard:import \
+  --file=/caminho/fronteiras-ago-adm1.geojson \
+  --source="Fonte oficial ou verificável" \
+  --version=2026.1
 ```
 
-```php
-GeoGuard::request($request)
-    ->forTenant(new AppTenantContext($tenant))
-    ->evaluate();
-```
-
-As chaves de cache incluem sempre o tenant, a versão dos dados e a versão
-da política (`geoguard:{tenant}:{data_version}:{policy_version}:{ip_hash}`),
-evitando fuga de decisões entre tenants — ver `Tenancy\TenantAwareCacheKey`.
+O importador valida `FeatureCollection`, `Polygon` e `MultiPolygon`, cria
+uma nova versão em `geo_data_versions` e associa as geometrias às províncias
+existentes por código interno, slug ou alias documentado.
 
 ## Provedores de geolocalização
 
-O pacote **não força nenhum serviço comercial**. Por defeito, nenhum
-provedor real está configurado (`NullGeolocationProvider`), para nunca
-inventar uma localização. Para ativar resolução real por IP, registe um
-adaptador que implemente `GeolocationProviderInterface`:
+O pacote não força nenhum serviço comercial. Por padrão, usa
+`NullGeolocationProvider` para nunca inventar localização.
+
+Para ativar resolução por IP, registe um adaptador que implemente
+`GeolocationProviderInterface`:
 
 ```php
 $this->app->bind(
@@ -234,34 +275,27 @@ $this->app->bind(
 );
 ```
 
-## Motor espacial
-
-Controlado por `angola-geoguard.spatial.engine`:
-
-- `memory` (padrão) — ray-casting em PHP, sem dependências externas,
-  suporta polígonos com buracos e multipolígonos.
-- `postgis` — delega para PostGIS via `ST_Contains`/`ST_DWithin`/`ST_Intersects`.
-- `mysql` / `mariadb` — delega para funções `ST_*` do MySQL 8+/MariaDB.
-
 ## Segurança
 
 ### Proxies confiáveis
 
-```env
-ANGOLA_GEOGUARD_TRUSTED_PROXIES=173.245.48.0/20,10.0.0.0/8
-```
+Cabeçalhos como `X-Forwarded-For`, `CF-Connecting-IP`, `True-Client-IP` e
+`X-Real-IP` só são considerados quando o IP de origem pertence a um CIDR
+configurado em `ANGOLA_GEOGUARD_TRUSTED_PROXIES`.
 
-`X-Forwarded-For`, `CF-Connecting-IP`, `True-Client-IP` e `X-Real-IP` só
-são considerados quando a origem imediata do pedido pertence a um destes
-CIDRs — caso contrário são ignorados, para impedir spoofing.
+Nunca use:
+
+```env
+ANGOLA_GEOGUARD_TRUSTED_PROXIES=0.0.0.0/0
+```
 
 ### Tokens de localização assinados
 
-Para rotas de alto risco onde IP não chega, emite um token assinado com
-GPS do dispositivo:
+Para rotas de alto risco, pode exigir um token assinado:
 
 ```php
 use JoseQuembi\AngolaGeoGuard\Security\LocationToken;
+use JoseQuembi\AngolaGeoGuard\ValueObjects\Coordinates;
 
 $token = LocationToken::issue(
     userId: (string) $user->id,
@@ -271,69 +305,113 @@ $token = LocationToken::issue(
 );
 ```
 
-O cliente envia o token no cabeçalho `X-Location-Token`; o middleware
-`geo.verified` valida assinatura HMAC, expiração e proteção contra replay.
+O cliente envia o token no cabeçalho `X-Location-Token`. O middleware
+`geo.verified` valida assinatura HMAC, expiração, coordenadas e replay.
 
-## Exceções de acesso
+## Deteção comportamental
 
-```php
-\JoseQuembi\AngolaGeoGuard\Models\GeoAccessExceptionGrant::create([
-    'user_id' => $user->id,
-    'reason' => 'Missão institucional autorizada',
-    'authorized_territories' => ['global'],
-    'expires_at' => now()->addHours(2),
-    'created_by' => auth()->user()->email,
-]);
+Além da decisão por pedido, o pacote observa padrões por sujeito ao longo do
+tempo. Essa camada é **heurística e estatística**; não é um modelo de machine
+learning treinado.
+
+Sinais avaliados:
+
+| Sinal | Padrão detetado |
+|---|---|
+| `impossible_travel` | Velocidade implícita fisicamente improvável entre duas localizações |
+| `high_denial_ratio` | Muitos pedidos negados numa janela curta |
+| `rapid_fire` | Intervalo entre pedidos muito abaixo da linha de base aprendida |
+| `province_enumeration` | Muitas províncias distintas tentadas numa janela curta |
+| `country_hopping` | Mudanças frequentes de país |
+| `evasion_signal_cycling` | Alternância repetida de VPN, proxy ou Tor |
+
+Contramedidas possíveis:
+
+```text
+NONE -> LOG_ONLY -> CHALLENGE -> THROTTLE -> QUARANTINE
 ```
 
-Exceções são sempre explícitas, tipicamente temporárias, e auditáveis
-(`usage_limit`, `usage_count`, `revoke()`).
+A quarentena é escalonada por reincidência, no estilo fail2ban.
 
-## Dados geográficos e geometrias
+## Calibração por tráfego real
 
-Os dados administrativos (nome, capital, código interno) das 21
-províncias são verificados e incluídos no seeder. **As geometrias
-(polígonos de fronteira) não estão incluídas** — não inventamos limites
-territoriais. Importa a partir de uma fonte oficial (INE, IGCA, ou
-equivalente) preenchendo a coluna `geometry` de `geo_provinces` com
-GeoJSON válido em WGS 84 (EPSG:4326).
+Depois de acumular histórico em `geo_access_decisions`, use:
 
-## Testes
+```bash
+php artisan geoguard:calibrate --days=30
+php artisan geoguard:calibrate --days=30 --env
+```
+
+O comando sugere limiares para `threat_detection.thresholds` com base em
+percentis reais: taxa de negação, enumeração territorial, alternância de
+sinais de evasão, rajadas de pedidos e viagem impossível.
+
+O comando é somente leitura; ele não altera configuração automaticamente.
+
+## Comandos Artisan
+
+```bash
+php artisan geoguard:install
+php artisan geoguard:publish
+php artisan geoguard:seed-angola
+php artisan geoguard:import --file=fronteiras.geojson --source="Fonte" --version=2026.1
+php artisan geoguard:validate
+php artisan geoguard:diagnose
+php artisan geoguard:audit --days=7
+php artisan geoguard:calibrate --days=30 --env
+php artisan geoguard:threats
+php artisan geoguard:clear-cache
+php artisan geoguard:prune
+php artisan geoguard:rollback-data 2026.1
+```
+
+## Qualidade e testes
 
 ```bash
 composer install
-vendor/bin/phpunit
+composer quality
 ```
 
-Suites: `tests/Unit` (Value Objects, motor de políticas, segurança —
-sem dependência de base de dados), `tests/Feature` (seeders, migrations,
-via Orchestra Testbench), `tests/Security`, `tests/Integration`.
+`composer quality` executa:
 
-### Teste de integração com fonte GeoJSON real
+- Laravel Pint.
+- PHPStan 2 no nível 8.
+- PHPUnit.
 
-`tests/Integration/GeoJsonProvinceImportServiceTest.php` importa as
-fronteiras ADM1 de Angola publicadas pelo
-[geoBoundaries](https://www.geoboundaries.org) (William & Mary geoLab,
-CC BY 4.0) — uma fonte real e não controlada por este pacote, com 18
-províncias (divisão pré-reforma de 2024) e convenção de propriedades
-diferente da interna (`shapeISO` em vez de `internal_code`). O teste
-confirma: 15 províncias casam diretamente pelo código, 2 (Benguela,
-Cunene) casam por alias histórico, a antiga província fundida "Kuando
-Kubango" é corretamente reportada como sem correspondência (em vez de
-adivinhar qual das duas novas províncias lhe corresponde), as 4
-províncias criadas em 2024 ficam corretamente sem geometria, e — o
-mais importante — **Lubango cai dentro do polígono real importado da
-Huíla, e fora do polígono real de Luanda**, confirmando point-in-polygon
-contra geometria oficial verdadeira, não um fixture artificial.
+Também pode executar separadamente:
 
-
-## Política de segurança
-
-Ver [SECURITY.md](SECURITY.md).
-
-## Licenciamento
-
-Proprietária por padrão — ver [LICENSE](LICENSE). Configurável pelo
-proprietário do pacote antes da publicação.
+```bash
+composer pint:test
+composer stan
+composer test
 ```
 
+## Publicação no Packagist
+
+Para boa apresentação no Packagist:
+
+1. Garanta que `composer.json` está validado:
+
+   ```bash
+   composer validate --strict
+   ```
+
+2. Publique o repositório no GitHub com uma tag semântica:
+
+   ```bash
+   git tag v0.1.0
+   git push origin main --tags
+   ```
+
+3. Registe o pacote em [packagist.org](https://packagist.org).
+4. Ative o hook GitHub/Packagist para atualizar releases automaticamente.
+5. Mantenha o README em português claro, com exemplos executáveis e changelog.
+
+## Segurança e licença
+
+Vulnerabilidades devem ser reportadas de forma privada. Consulte
+[SECURITY.md](SECURITY.md).
+
+O pacote usa licença proprietária por padrão. Consulte [LICENSE](LICENSE) e
+ajuste a licença antes de publicação pública caso deseje distribuição open
+source.

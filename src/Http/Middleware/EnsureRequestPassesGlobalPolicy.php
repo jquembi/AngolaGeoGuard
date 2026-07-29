@@ -22,7 +22,7 @@ final class EnsureRequestPassesGlobalPolicy extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $security = (array) config('angola-geoguard.security', []);
 

@@ -9,7 +9,7 @@ use JoseQuembi\AngolaGeoGuard\Enums\RiskLevel;
 final class GeoRiskDetected
 {
     /**
-     * @param  array<string>  $signals
+     * @param array<string> $signals
      */
     public function __construct(
         public readonly RiskLevel $risk,

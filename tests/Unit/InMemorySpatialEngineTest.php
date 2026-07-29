@@ -44,6 +44,13 @@ final class InMemorySpatialEngineTest extends TestCase
         $this->assertTrue($this->engine->pointInPolygon($point, $this->testSquarePolygon()));
     }
 
+    public function test_point_on_polygon_boundary_is_inside(): void
+    {
+        $point = new Coordinates(latitude: -8.5, longitude: 13.0);
+
+        $this->assertTrue($this->engine->pointInPolygon($point, $this->testSquarePolygon()));
+    }
+
     public function test_point_outside_polygon(): void
     {
         $point = new Coordinates(latitude: -20.0, longitude: 13.5);
@@ -77,6 +84,16 @@ final class InMemorySpatialEngineTest extends TestCase
         $this->engine->pointInPolygon(
             new Coordinates(latitude: -8.5, longitude: 13.5),
             ['type' => 'Point', 'coordinates' => [13.5, -8.5]],
+        );
+    }
+
+    public function test_malformed_ring_throws_domain_exception(): void
+    {
+        $this->expectException(InvalidGeometryException::class);
+
+        $this->engine->pointInPolygon(
+            new Coordinates(latitude: -8.5, longitude: 13.5),
+            ['type' => 'Polygon', 'coordinates' => [[[13.0, -9.0], [14.0, -9.0], [14.0]]]],
         );
     }
 

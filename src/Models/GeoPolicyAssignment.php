@@ -12,9 +12,10 @@ use Ramsey\Uuid\Uuid;
  * Associa uma GeoAccessPolicy a uma entidade (utilizador, rota,
  * modulo, tenant, dominio, chave de API...). Ver secao 10.
  *
+ * @property string $uuid
  * @property string $assignable_type
  * @property string $assignable_id
- * @property int $priority
+ * @property int    $priority
  */
 final class GeoPolicyAssignment extends Model
 {

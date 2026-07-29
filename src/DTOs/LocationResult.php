@@ -15,7 +15,7 @@ use JoseQuembi\AngolaGeoGuard\ValueObjects\Coordinates;
 final class LocationResult
 {
     /**
-     * @param  array<string>  $evidence  Evidencias tecnicas usadas (ex.: "ip_geoip", "browser_gps")
+     * @param array<string> $evidence Evidencias tecnicas usadas (ex.: "ip_geoip", "browser_gps")
      */
     public function __construct(
         public readonly ?Coordinates $coordinates,

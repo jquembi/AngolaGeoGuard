@@ -6,6 +6,7 @@ namespace JoseQuembi\AngolaGeoGuard\Console\Commands;
 
 use Illuminate\Console\Command;
 use JoseQuembi\AngolaGeoGuard\Exceptions\InvalidGeometryException;
+use JoseQuembi\AngolaGeoGuard\Models\Province;
 use JoseQuembi\AngolaGeoGuard\Services\GeoJsonProvinceImportService;
 
 /**
@@ -39,10 +40,10 @@ final class ImportCommand extends Command
 
     public function handle(): int
     {
-        $type = (string) $this->option('type');
+        $type = $this->stringOption('type', 'province');
         $filePath = $this->option('file');
-        $sourceName = $this->option('source') ?? 'Fonte nao especificada';
-        $versionLabel = $this->option('version') ?? ('angola-'.$type.'-'.now()->format('Y-m-d-His'));
+        $sourceName = $this->stringOption('source', 'Fonte nao especificada');
+        $versionLabel = $this->stringOption('version', 'angola-'.$type.'-'.now()->format('Y-m-d-His'));
         $validateOnly = (bool) $this->option('validate');
 
         if ($type !== 'province') {
@@ -72,7 +73,7 @@ final class ImportCommand extends Command
         $matched = $this->importer->matchProvinces($features);
         $this->table(
             ['Feature', 'Provincia correspondida'],
-            array_map(fn ($m) => [$m['feature_key'], $m['province']?->official_name ?? '[NAO ENCONTRADA]'], $matched),
+            array_map(fn ($m) => [$m['feature_key'], $this->provinceName($m['province'])], $matched),
         );
 
         $unmatched = array_filter($matched, fn ($m) => $m['province'] === null);
@@ -98,5 +99,23 @@ final class ImportCommand extends Command
         $this->components->info(sprintf('Importacao concluida. Versao "%s" publicada.', $version->version_label));
 
         return self::SUCCESS;
+    }
+
+    private function stringOption(string $name, string $default): string
+    {
+        $value = $this->option($name);
+
+        return is_scalar($value) && trim((string) $value) !== ''
+            ? (string) $value
+            : $default;
+    }
+
+    private function provinceName(?Province $province): string
+    {
+        if ($province === null) {
+            return '[NAO ENCONTRADA]';
+        }
+
+        return $province->official_name;
     }
 }

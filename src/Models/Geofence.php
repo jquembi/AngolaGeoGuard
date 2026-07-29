@@ -11,18 +11,18 @@ use JoseQuembi\AngolaGeoGuard\ValueObjects\Coordinates;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @property int $id
- * @property string $uuid
- * @property string $name
- * @property string $slug
- * @property string $shape_type
- * @property array|null $geometry
- * @property float|null $center_latitude
- * @property float|null $center_longitude
- * @property int|null $radius_meters
- * @property array|null $bounding_box
+ * @property int         $id
+ * @property string      $uuid
+ * @property string      $name
+ * @property string      $slug
+ * @property string      $shape_type
+ * @property array|null  $geometry
+ * @property float|null  $center_latitude
+ * @property float|null  $center_longitude
+ * @property int|null    $radius_meters
+ * @property array|null  $bounding_box
  * @property string|null $tenant_id
- * @property bool $is_active
+ * @property bool        $is_active
  */
 final class Geofence extends Model
 {

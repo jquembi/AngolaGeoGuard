@@ -16,7 +16,7 @@ interface DatabaseConnectionInterface
      * Executa uma query de selecao e devolve a primeira linha como array
      * associativo, ou null se nao houver resultado.
      *
-     * @param  array<int, mixed>  $bindings
+     * @param array<int, mixed> $bindings
      */
     public function selectOne(string $query, array $bindings = []): ?array;
 }

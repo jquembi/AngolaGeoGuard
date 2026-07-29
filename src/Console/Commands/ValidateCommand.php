@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JoseQuembi\AngolaGeoGuard\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use JoseQuembi\AngolaGeoGuard\Exceptions\InvalidGeometryException;
 use JoseQuembi\AngolaGeoGuard\Models\Province;
 use JoseQuembi\AngolaGeoGuard\Spatial\InMemorySpatialEngine;
@@ -23,6 +24,7 @@ final class ValidateCommand extends Command
 
     public function handle(): int
     {
+        /** @var Collection<int, Province> $provinces */
         $provinces = Province::query()->whereNotNull('geometry')->get();
 
         if ($provinces->isEmpty()) {
@@ -37,6 +39,10 @@ final class ValidateCommand extends Command
 
         foreach ($provinces as $province) {
             try {
+                if ($province->geometry === null) {
+                    throw InvalidGeometryException::malformed('provincia sem geometria');
+                }
+
                 $this->assertRingsClosed($province->geometry);
                 $testPoint = new Coordinates(0, 0);
                 $engine->pointInPolygon($testPoint, $province->geometry); // forca validacao estrutural
@@ -80,7 +86,11 @@ final class ValidateCommand extends Command
         }
     }
 
-    private function detectAbnormalOverlaps($provinces, InMemorySpatialEngine $engine): array
+    /**
+     * @param  Collection<int, Province>         $provinces
+     * @return array<int, array{string, string}>
+     */
+    private function detectAbnormalOverlaps(Collection $provinces, InMemorySpatialEngine $engine): array
     {
         $overlaps = [];
         $list = $provinces->values();
@@ -88,7 +98,7 @@ final class ValidateCommand extends Command
         for ($i = 0; $i < count($list); $i++) {
             for ($j = $i + 1; $j < count($list); $j++) {
                 try {
-                    if ($engine->intersects($list[$i]->geometry, $list[$j]->geometry)) {
+                    if ($list[$i]->geometry !== null && $list[$j]->geometry !== null && $engine->intersects($list[$i]->geometry, $list[$j]->geometry)) {
                         $overlaps[] = [$list[$i]->official_name, $list[$j]->official_name];
                     }
                 } catch (\Throwable) {

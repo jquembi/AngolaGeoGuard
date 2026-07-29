@@ -65,4 +65,24 @@ final class LocationTokenTest extends TestCase
         $this->assertNotNull(LocationToken::verify($token, self::KEY, $nonceSeenBefore));
         $this->assertNull(LocationToken::verify($token, self::KEY, $nonceSeenBefore));
     }
+
+    public function test_signed_payload_with_missing_fields_is_rejected(): void
+    {
+        $payload = json_encode([
+            'user_id' => 'user-1',
+            'expires_at' => time() + 300,
+            'nonce' => 'nonce-1',
+        ], JSON_THROW_ON_ERROR);
+        $token = base64_encode($payload).'.'.hash_hmac('sha256', $payload, self::KEY);
+
+        $this->assertNull(LocationToken::verify($token, self::KEY));
+    }
+
+    public function test_signed_non_object_payload_is_rejected(): void
+    {
+        $payload = json_encode('not-an-object', JSON_THROW_ON_ERROR);
+        $token = base64_encode($payload).'.'.hash_hmac('sha256', $payload, self::KEY);
+
+        $this->assertNull(LocationToken::verify($token, self::KEY));
+    }
 }

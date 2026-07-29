@@ -13,13 +13,15 @@ use Ramsey\Uuid\Uuid;
  * ser editada apos publicacao — uma correcao gera uma nova versao
  * com `previous_hash` a apontar para a anterior (ver secao 5).
  *
- * @property int $id
- * @property string $uuid
- * @property string $version_label
- * @property string $entity_type
+ * @property int         $id
+ * @property string      $uuid
+ * @property string      $version_label
+ * @property string      $entity_type
  * @property string|null $previous_hash
- * @property string $record_hash
- * @property string $status
+ * @property string      $record_hash
+ * @property string      $status
+ *
+ * @method static self create(array<string, mixed> $attributes = [])
  */
 final class GeoDataVersion extends Model
 {

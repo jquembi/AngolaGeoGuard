@@ -7,7 +7,6 @@ namespace JoseQuembi\AngolaGeoGuard\Spatial;
 use JoseQuembi\AngolaGeoGuard\Contracts\DatabaseConnectionInterface;
 use JoseQuembi\AngolaGeoGuard\Contracts\SpatialEngineInterface;
 use JoseQuembi\AngolaGeoGuard\Exceptions\InvalidGeometryException;
-use JoseQuembi\AngolaGeoGuard\Spatial\InMemorySpatialEngine;
 use JoseQuembi\AngolaGeoGuard\ValueObjects\Coordinates;
 
 /**

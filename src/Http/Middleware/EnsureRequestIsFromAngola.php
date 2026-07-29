@@ -21,7 +21,7 @@ final class EnsureRequestIsFromAngola extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $policy = GeoAccessPolicyConfig::angolaOnly('geo.angola');
         $decision = $this->evaluator->evaluate($request, $policy);

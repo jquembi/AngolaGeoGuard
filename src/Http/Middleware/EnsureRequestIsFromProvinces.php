@@ -23,7 +23,7 @@ final class EnsureRequestIsFromProvinces extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next, string $provinceSlugs)
+    public function handle(Request $request, Closure $next, string $provinceSlugs): mixed
     {
         $slugs = array_values(array_filter(array_map('trim', explode(',', $provinceSlugs))));
 

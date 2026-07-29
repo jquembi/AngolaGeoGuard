@@ -24,7 +24,7 @@ final class EnsureRequestPassesNamedPolicy extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next, string $policySlug)
+    public function handle(Request $request, Closure $next, string $policySlug): mixed
     {
         $policyModel = GeoAccessPolicy::query()
             ->where('slug', $policySlug)

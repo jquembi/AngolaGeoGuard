@@ -16,9 +16,9 @@ use JoseQuembi\AngolaGeoGuard\Enums\RiskLevel;
 final class GeoAccessDecision
 {
     /**
-     * @param  array<string>  $evidence
-     * @param  array<string>  $warnings
-     * @param  array<string>  $appliedExceptions
+     * @param array<string> $evidence
+     * @param array<string> $warnings
+     * @param array<string> $appliedExceptions
      */
     public function __construct(
         public readonly bool $allowed,

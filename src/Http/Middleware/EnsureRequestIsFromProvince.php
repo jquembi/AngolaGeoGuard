@@ -23,7 +23,7 @@ final class EnsureRequestIsFromProvince extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next, string $provinceSlug)
+    public function handle(Request $request, Closure $next, string $provinceSlug): mixed
     {
         $policy = GeoAccessPolicyConfig::fromArray([
             'identifier' => 'geo.province:'.$provinceSlug,

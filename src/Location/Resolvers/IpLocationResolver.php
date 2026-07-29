@@ -33,9 +33,6 @@ final class IpLocationResolver implements LocationResolverInterface
         return 50;
     }
 
-    /**
-     * @param  array{remote_addr: string, headers: array<string, string>}  $context
-     */
     public function resolve(mixed $context): ?LocationResult
     {
         if (! is_array($context) || ! isset($context['remote_addr'])) {

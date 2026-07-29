@@ -18,14 +18,14 @@ final class ClearCacheCommand extends Command
         $store = config('angola-geoguard.cache.store');
         $prefix = config('angola-geoguard.cache.prefix', 'geoguard');
 
-        $cache = $store ? Cache::store($store) : Cache::store();
+        $cache = is_string($store) && $store !== '' ? Cache::store($store) : Cache::store();
 
         // A limpeza granular por prefixo depende do driver (Redis
         // suporta SCAN por padrao; outros drivers exigem flush total
         // do store dedicado). Aqui usamos o metodo mais seguro e
         // universalmente suportado: flush do store configurado para
         // o pacote, que se recomenda ser dedicado em producao.
-        $cache->flush();
+        $cache->getStore()->flush();
 
         $this->components->info(sprintf('Cache do angola-geoguard (prefixo "%s") limpo.', $prefix));
 

@@ -16,7 +16,7 @@ use JoseQuembi\AngolaGeoGuard\DTOs\ProviderHealth;
 final class GeolocationProviderChain implements GeolocationProviderInterface
 {
     /**
-     * @param  array<GeolocationProviderInterface>  $providers  Em ordem de prioridade
+     * @param array<GeolocationProviderInterface> $providers Em ordem de prioridade
      */
     public function __construct(
         private readonly array $providers,

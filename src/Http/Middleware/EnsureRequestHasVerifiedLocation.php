@@ -20,12 +20,12 @@ use JoseQuembi\AngolaGeoGuard\Security\LocationToken;
  */
 final class EnsureRequestHasVerifiedLocation extends BaseGeoMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $token = $request->header('X-Location-Token');
         $signingKey = (string) config('angola-geoguard.security.location_token.key');
 
-        if (empty($token) || empty($signingKey)) {
+        if (! is_string($token) || $token === '' || $signingKey === '') {
             return $this->respondUnverified($request);
         }
 
@@ -52,7 +52,7 @@ final class EnsureRequestHasVerifiedLocation extends BaseGeoMiddleware
         return $this->next($next, $request);
     }
 
-    private function respondUnverified(Request $request)
+    private function respondUnverified(Request $request): mixed
     {
         $statusCode = (int) config('angola-geoguard.responses.status_code', 403);
 

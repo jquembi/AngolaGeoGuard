@@ -11,22 +11,22 @@ use JoseQuembi\AngolaGeoGuard\ValueObjects\Territory;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @property int $id
- * @property string $uuid
- * @property int $geo_country_id
- * @property string $official_name
- * @property string $normalized_name
- * @property string $slug
- * @property string $internal_code
+ * @property int         $id
+ * @property string      $uuid
+ * @property int         $geo_country_id
+ * @property string      $official_name
+ * @property string      $normalized_name
+ * @property string      $slug
+ * @property string      $internal_code
  * @property string|null $official_code
  * @property string|null $capital
- * @property float|null $latitude
- * @property float|null $longitude
- * @property array|null $bounding_box
- * @property array|null $geometry
- * @property array|null $aliases
- * @property bool $is_active
- * @property array|null $metadata
+ * @property float|null  $latitude
+ * @property float|null  $longitude
+ * @property array|null  $bounding_box
+ * @property array|null  $geometry
+ * @property array|null  $aliases
+ * @property bool        $is_active
+ * @property array|null  $metadata
  */
 final class Province extends Model
 {

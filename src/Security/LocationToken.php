@@ -66,7 +66,7 @@ final class LocationToken
      * Verifica assinatura, expiracao e (opcionalmente) reutilizacao de
      * nonce, e devolve o token decodificado ou null se invalido.
      *
-     * @param  callable(string): bool|null  $nonceSeenBefore  Deve devolver true se o nonce ja foi usado (proteccao contra replay); tipicamente backed por cache/Redis com TTL = ttlSeconds do token.
+     * @param callable(string): bool|null $nonceSeenBefore Deve devolver true se o nonce ja foi usado (proteccao contra replay); tipicamente backed por cache/Redis com TTL = ttlSeconds do token.
      */
     public static function verify(string $token, string $signingKey, ?callable $nonceSeenBefore = null): ?self
     {
@@ -95,7 +95,15 @@ final class LocationToken
             return null;
         }
 
+        if (! is_array($payload)) {
+            return null;
+        }
+
         if (! isset($payload['expires_at']) || time() > (int) $payload['expires_at']) {
+            return null;
+        }
+
+        if (! self::hasRequiredPayloadFields($payload)) {
             return null;
         }
 
@@ -103,16 +111,20 @@ final class LocationToken
             return null;
         }
 
-        return new self(
-            userId: (string) $payload['user_id'],
-            deviceId: $payload['device_id'] ?? null,
-            coordinates: new Coordinates((float) $payload['latitude'], (float) $payload['longitude']),
-            accuracyMeters: isset($payload['accuracy']) ? (float) $payload['accuracy'] : null,
-            issuedAt: (int) $payload['issued_at'],
-            expiresAt: (int) $payload['expires_at'],
-            nonce: (string) $payload['nonce'],
-            keyVersion: (string) ($payload['key_version'] ?? 'v1'),
-        );
+        try {
+            return new self(
+                userId: (string) $payload['user_id'],
+                deviceId: $payload['device_id'] ?? null,
+                coordinates: new Coordinates((float) $payload['latitude'], (float) $payload['longitude']),
+                accuracyMeters: isset($payload['accuracy']) ? (float) $payload['accuracy'] : null,
+                issuedAt: (int) $payload['issued_at'],
+                expiresAt: (int) $payload['expires_at'],
+                nonce: (string) $payload['nonce'],
+                keyVersion: (string) ($payload['key_version'] ?? 'v1'),
+            );
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -122,5 +134,21 @@ final class LocationToken
     private static function sign(string $payload, string $key): string
     {
         return hash_hmac('sha256', $payload, $key);
+    }
+
+    private static function hasRequiredPayloadFields(array $payload): bool
+    {
+        foreach (['user_id', 'latitude', 'longitude', 'issued_at', 'expires_at', 'nonce'] as $field) {
+            if (! array_key_exists($field, $payload)) {
+                return false;
+            }
+        }
+
+        return is_scalar($payload['user_id'])
+            && is_numeric($payload['latitude'])
+            && is_numeric($payload['longitude'])
+            && is_numeric($payload['issued_at'])
+            && is_numeric($payload['expires_at'])
+            && is_scalar($payload['nonce']);
     }
 }

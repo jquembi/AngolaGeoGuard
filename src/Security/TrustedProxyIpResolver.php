@@ -17,7 +17,7 @@ namespace JoseQuembi\AngolaGeoGuard\Security;
 final class TrustedProxyIpResolver
 {
     /**
-     * @param  array<string>  $trustedProxyCidrs  Ex.: ['10.0.0.0/8', '173.245.48.0/20']
+     * @param array<string> $trustedProxyCidrs Ex.: ['10.0.0.0/8', '173.245.48.0/20']
      */
     public function __construct(
         private readonly array $trustedProxyCidrs,
@@ -25,8 +25,8 @@ final class TrustedProxyIpResolver
     }
 
     /**
-     * @param  string  $remoteAddr  IP da ligacao TCP direta (nunca falsificavel pela aplicacao)
-     * @param  array<string, string>  $headers  Cabecalhos HTTP recebidos, case-insensitive
+     * @param  string                                                          $remoteAddr IP da ligacao TCP direta (nunca falsificavel pela aplicacao)
+     * @param  array<string, string>                                           $headers    Cabecalhos HTTP recebidos, case-insensitive
      * @return array{ip: string, trusted_chain: bool, warnings: array<string>}
      */
     public function resolve(string $remoteAddr, array $headers): array
@@ -56,9 +56,9 @@ final class TrustedProxyIpResolver
 
         if (isset($normalizedHeaders['x-forwarded-for'])) {
             $chain = array_map('trim', explode(',', $normalizedHeaders['x-forwarded-for']));
-            $clientIp = $chain[0] ?? null;
+            $clientIp = $chain[0];
 
-            if ($clientIp !== null && $this->isValidIp($clientIp)) {
+            if ($this->isValidIp($clientIp)) {
                 return ['ip' => $clientIp, 'trusted_chain' => true, 'warnings' => $warnings];
             }
 

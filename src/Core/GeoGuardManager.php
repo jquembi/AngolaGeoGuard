@@ -74,10 +74,15 @@ final class GeoGuardManager
     {
         $point = new Coordinates($latitude, $longitude);
 
-        return Province::query()
+        /** @var \Illuminate\Support\Collection<int, Province> $provinces */
+        $provinces = Province::query()
             ->whereNotNull('geometry')
-            ->get()
-            ->contains(fn (Province $province) => $this->spatialEngine->pointInPolygon($point, $province->geometry));
+            ->get();
+
+        return $provinces->contains(
+            fn (Province $province): bool => $province->geometry !== null
+                && $this->spatialEngine->pointInPolygon($point, $province->geometry)
+        );
     }
 
     public function isInsideProvince(string $province, float $latitude, float $longitude): bool
@@ -90,7 +95,10 @@ final class GeoGuardManager
             return false;
         }
 
-        return $this->spatialEngine->pointInPolygon($point, $model->geometry);
+        /** @var array $geometry */
+        $geometry = $model->geometry;
+
+        return $this->spatialEngine->pointInPolygon($point, $geometry);
     }
 
     /**
@@ -98,7 +106,7 @@ final class GeoGuardManager
      * de provincias, pronta a ser usada com evaluate() do
      * GeoAccessPolicyEngine.
      *
-     * @param  array<string>  $provinces
+     * @param array<string> $provinces
      */
     public function allowOnlyProvincesPolicy(array $provinces): GeoAccessPolicyConfig
     {

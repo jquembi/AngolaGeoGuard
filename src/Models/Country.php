@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @property int $id
- * @property string $uuid
- * @property string $iso_code
- * @property string $name
- * @property string $slug
+ * @property int        $id
+ * @property string     $uuid
+ * @property string     $iso_code
+ * @property string     $name
+ * @property string     $slug
  * @property array|null $bounding_box
  * @property array|null $geometry
- * @property bool $is_active
+ * @property bool       $is_active
  * @property array|null $metadata
  */
 final class Country extends Model

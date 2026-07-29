@@ -14,12 +14,14 @@ use Ramsey\Uuid\Uuid;
  * secao 15. Toda excecao deve ser explicita e, quando possivel,
  * temporaria — nunca um bypass permanente e silencioso.
  *
- * @property string $status
- * @property array $authorized_territories
+ * @property string                          $uuid
+ * @property string|null                     $reason
+ * @property string                          $status
+ * @property array                           $authorized_territories
  * @property \Illuminate\Support\Carbon|null $starts_at
  * @property \Illuminate\Support\Carbon|null $expires_at
- * @property int|null $usage_limit
- * @property int $usage_count
+ * @property int|null                        $usage_limit
+ * @property int                             $usage_count
  */
 final class GeoAccessExceptionGrant extends Model
 {

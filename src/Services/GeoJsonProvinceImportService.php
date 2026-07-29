@@ -76,7 +76,7 @@ final class GeoJsonProvinceImportService
     }
 
     /**
-     * @param  array<int, array{key: string, geometry: array}>  $features
+     * @param  array<int, array{key: string, geometry: array}>                              $features
      * @return array<int, array{feature_key: string, geometry: array, province: ?Province}>
      */
     public function matchProvinces(array $features): array
@@ -114,7 +114,7 @@ final class GeoJsonProvinceImportService
     }
 
     /**
-     * @param  array<int, array{feature_key: string, geometry: array, province: ?Province}>  $matched
+     * @param array<int, array{feature_key: string, geometry: array, province: ?Province}> $matched
      */
     public function persist(array $matched, string $sourceName, string $versionLabel): GeoDataVersion
     {

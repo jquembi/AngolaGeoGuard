@@ -13,7 +13,7 @@ use JoseQuembi\AngolaGeoGuard\ValueObjects\Coordinates;
 interface SpatialEngineInterface
 {
     /**
-     * @param  array  $polygon  GeoJSON-like geometry (Polygon ou MultiPolygon)
+     * @param array $polygon GeoJSON-like geometry (Polygon ou MultiPolygon)
      */
     public function pointInPolygon(Coordinates $point, array $polygon): bool;
 

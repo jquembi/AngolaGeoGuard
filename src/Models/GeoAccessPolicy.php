@@ -12,23 +12,23 @@ use JoseQuembi\AngolaGeoGuard\Enums\ConfidenceLevel;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @property int $id
- * @property string $uuid
- * @property string $name
- * @property string $slug
- * @property string $mode
- * @property array|null $allowed_countries
- * @property array|null $allowed_provinces
- * @property array|null $blocked_provinces
- * @property array|null $allowed_geofences
- * @property string $minimum_confidence
- * @property bool $block_vpn
- * @property bool $block_proxy
- * @property bool $block_tor
- * @property bool $block_datacenter_ip
- * @property bool $require_verified_device
+ * @property int         $id
+ * @property string      $uuid
+ * @property string      $name
+ * @property string      $slug
+ * @property string      $mode
+ * @property array|null  $allowed_countries
+ * @property array|null  $allowed_provinces
+ * @property array|null  $blocked_provinces
+ * @property array|null  $allowed_geofences
+ * @property string      $minimum_confidence
+ * @property bool        $block_vpn
+ * @property bool        $block_proxy
+ * @property bool        $block_tor
+ * @property bool        $block_datacenter_ip
+ * @property bool        $require_verified_device
  * @property string|null $tenant_id
- * @property bool $is_active
+ * @property bool        $is_active
  */
 final class GeoAccessPolicy extends Model
 {

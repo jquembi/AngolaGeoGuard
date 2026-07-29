@@ -13,7 +13,6 @@ use JoseQuembi\AngolaGeoGuard\Enums\AccessMode;
 use JoseQuembi\AngolaGeoGuard\Enums\ConfidenceLevel;
 use JoseQuembi\AngolaGeoGuard\Enums\DecisionReasonCode;
 use JoseQuembi\AngolaGeoGuard\Enums\RiskLevel;
-use LogicException;
 
 /**
  * Motor de decisao geografica. Framework-agnostic: nao acede a base
@@ -30,7 +29,7 @@ final class GeoAccessPolicyEngine
     }
 
     /**
-     * @param  array<string, array>  $geofenceGeometries  slug => geometria GeoJSON (para CUSTOM_GEOFENCE)
+     * @param array<string, array> $geofenceGeometries slug => geometria GeoJSON (para CUSTOM_GEOFENCE)
      */
     public function evaluate(
         LocationResult $location,
@@ -82,7 +81,6 @@ final class GeoAccessPolicyEngine
             AccessMode::BLOCKLIST => $this->evaluateBlocklist($location, $policy, $risk, $evidence, $warnings, $startedAt),
             AccessMode::CUSTOM_GEOFENCE => $this->evaluateGeofence($location, $policy, $geofenceGeometries, $risk, $evidence, $warnings, $startedAt),
             AccessMode::HYBRID => $this->evaluateHybrid($location, $policy, $risk, $evidence, $warnings, $startedAt),
-            AccessMode::GLOBAL => throw new LogicException('Modo global ja deveria ter sido tratado.'),
         };
     }
 
@@ -118,7 +116,7 @@ final class GeoAccessPolicyEngine
     }
 
     /**
-     * @param  array<string, array>  $geofenceGeometries
+     * @param array<string, array> $geofenceGeometries
      */
     private function evaluateGeofence(LocationResult $location, GeoAccessPolicyConfig $policy, array $geofenceGeometries, RiskLevel $risk, array $evidence, array $warnings, float $startedAt): GeoAccessDecision
     {

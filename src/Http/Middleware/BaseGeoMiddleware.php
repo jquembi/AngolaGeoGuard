@@ -16,7 +16,7 @@ use JoseQuembi\AngolaGeoGuard\DTOs\GeoAccessDecision;
  */
 abstract class BaseGeoMiddleware
 {
-    protected function respondBlocked(Request $request, GeoAccessDecision $decision)
+    protected function respondBlocked(Request $request, GeoAccessDecision $decision): mixed
     {
         $statusCode = (int) config('angola-geoguard.responses.status_code', 403);
 
@@ -47,7 +47,7 @@ abstract class BaseGeoMiddleware
         return (bool) config('angola-geoguard.observation_mode', false);
     }
 
-    protected function next(Closure $next, Request $request)
+    protected function next(Closure $next, Request $request): mixed
     {
         return $next($request);
     }

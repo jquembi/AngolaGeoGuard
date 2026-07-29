@@ -26,7 +26,7 @@ final class RollbackDataCommand extends Command
 
     public function handle(): int
     {
-        $targetLabel = (string) $this->argument('version');
+        $targetLabel = $this->stringArgument('version');
 
         $target = GeoDataVersion::query()->where('version_label', $targetLabel)->first();
 
@@ -48,14 +48,16 @@ final class RollbackDataCommand extends Command
             return self::SUCCESS;
         }
 
-        if (! $this->input->isInteractive() || $this->confirm(sprintf('Reverter de "%s" para "%s"?', $current?->version_label ?? 'nenhuma', $targetLabel))) {
+        if (! $this->input->isInteractive() || $this->confirm(sprintf('Reverter de "%s" para "%s"?', $this->versionLabel($current, 'nenhuma'), $targetLabel))) {
             $current?->update(['status' => 'rolled_back', 'rolled_back_at' => now()]);
-            $target->update(['status' => 'published', 'published_at' => now(), 'published_by' => (string) $this->option('by')]);
+            $rolledBackBy = $this->stringOption('by', 'cli');
+
+            $target->update(['status' => 'published', 'published_at' => now(), 'published_by' => $rolledBackBy]);
 
             event(new GeoDataRolledBack(
-                fromVersionLabel: $current?->version_label ?? 'n/a',
+                fromVersionLabel: $this->versionLabel($current, 'n/a'),
                 toVersionLabel: $targetLabel,
-                rolledBackBy: (string) $this->option('by'),
+                rolledBackBy: $rolledBackBy,
             ));
 
             $this->components->info(sprintf('Rollback concluido. Versao ativa: "%s".', $targetLabel));
@@ -66,5 +68,30 @@ final class RollbackDataCommand extends Command
         $this->components->warn('Rollback cancelado.');
 
         return self::SUCCESS;
+    }
+
+    private function stringArgument(string $name): string
+    {
+        $value = $this->argument($name);
+
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    private function stringOption(string $name, string $default): string
+    {
+        $value = $this->option($name);
+
+        return is_scalar($value) && trim((string) $value) !== ''
+            ? (string) $value
+            : $default;
+    }
+
+    private function versionLabel(?GeoDataVersion $version, string $fallback): string
+    {
+        if ($version === null) {
+            return $fallback;
+        }
+
+        return $version->version_label;
     }
 }

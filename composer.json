@@ -1,17 +1,23 @@
 {
     "name": "josequembi/angola-geoguard",
-    "description": "Pacote PHP e Laravel para geolocalizacao, geofencing, controlo territorial, restricao de acesso e seguranca geoespacial em Angola.",
+    "description": "Pacote PHP e Laravel para geolocalização, geofencing, controlo territorial, restrição de acesso e segurança geoespacial em Angola.",
     "type": "library",
     "license": "proprietary",
     "keywords": [
         "angola",
+        "angola-geoguard",
         "geofencing",
         "geolocation",
+        "geo-blocking",
+        "geo-access-control",
         "laravel",
+        "laravel-package",
         "geospatial",
         "access-control",
+        "security",
         "saas",
-        "multi-tenant"
+        "multi-tenant",
+        "territorial-access"
     ],
     "homepage": "https://github.com/josequembi/angola-geoguard",
     "support": {
@@ -31,9 +37,9 @@
     "require-dev": {
         "orchestra/testbench": "^9.0|^10.0",
         "phpunit/phpunit": "^11.0",
-        "phpstan/phpstan": "^1.11",
+        "phpstan/phpstan": "^2.2",
         "laravel/pint": "^1.16",
-        "rector/rector": "^1.2"
+        "rector/rector": "^2.0"
     },
     "suggest": {
         "illuminate/support": "Requerido para a integracao Laravel (^10.0|^11.0|^12.0)",

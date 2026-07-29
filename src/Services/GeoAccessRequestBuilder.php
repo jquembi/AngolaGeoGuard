@@ -44,8 +44,6 @@ final class GeoAccessRequestBuilder
 
     private ?string $policySlug = null;
 
-    private ?TenantContextInterface $tenant = null;
-
     public function __construct(
         private readonly GeoRequestEvaluator $evaluator,
         private readonly Request $request,
@@ -69,7 +67,7 @@ final class GeoAccessRequestBuilder
     }
 
     /**
-     * @param  array<string>  $slugs
+     * @param array<string> $slugs
      */
     public function provinces(array $slugs): self
     {
@@ -80,7 +78,7 @@ final class GeoAccessRequestBuilder
     }
 
     /**
-     * @param  array<string>  $slugs
+     * @param array<string> $slugs
      */
     public function blockProvinces(array $slugs): self
     {
@@ -127,7 +125,7 @@ final class GeoAccessRequestBuilder
 
     public function forTenant(TenantContextInterface $tenant): self
     {
-        $this->tenant = $tenant;
+        $this->request->attributes->set('geo_tenant_id', $tenant->tenantId());
 
         return $this;
     }

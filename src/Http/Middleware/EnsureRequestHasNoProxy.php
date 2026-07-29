@@ -21,7 +21,7 @@ final class EnsureRequestHasNoProxy extends BaseGeoMiddleware
     ) {
     }
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $policy = GeoAccessPolicyConfig::fromArray([
             'identifier' => 'geo.no-proxy',

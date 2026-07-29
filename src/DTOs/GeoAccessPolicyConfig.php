@@ -16,10 +16,10 @@ use JoseQuembi\AngolaGeoGuard\Enums\ConfidenceLevel;
 final class GeoAccessPolicyConfig
 {
     /**
-     * @param  array<string>  $allowedCountries  Codigos ISO (ex.: ['AO'])
-     * @param  array<string>  $allowedProvinces  Slugs de provincia
-     * @param  array<string>  $blockedProvinces  Slugs de provincia
-     * @param  array<string>  $allowedGeofenceSlugs
+     * @param array<string> $allowedCountries     Codigos ISO (ex.: ['AO'])
+     * @param array<string> $allowedProvinces     Slugs de provincia
+     * @param array<string> $blockedProvinces     Slugs de provincia
+     * @param array<string> $allowedGeofenceSlugs
      */
     public function __construct(
         public readonly ?string $identifier,

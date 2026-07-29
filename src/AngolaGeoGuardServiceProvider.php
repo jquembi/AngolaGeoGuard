@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace JoseQuembi\AngolaGeoGuard;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\AuditSummaryCommand;
+use JoseQuembi\AngolaGeoGuard\Console\Commands\CalibrateCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\ClearCacheCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\DiagnoseCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\ImportCommand;
@@ -15,8 +17,10 @@ use JoseQuembi\AngolaGeoGuard\Console\Commands\PublishCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\RollbackDataCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\SeedAngolaCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\SyncCommand;
+use JoseQuembi\AngolaGeoGuard\Console\Commands\ThreatsCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\ValidateCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\WarmCacheCommand;
+use JoseQuembi\AngolaGeoGuard\Contracts\BehaviorProfileRepositoryInterface;
 use JoseQuembi\AngolaGeoGuard\Contracts\DatabaseConnectionInterface;
 use JoseQuembi\AngolaGeoGuard\Contracts\GeolocationProviderInterface;
 use JoseQuembi\AngolaGeoGuard\Contracts\SpatialEngineInterface;
@@ -34,7 +38,12 @@ use JoseQuembi\AngolaGeoGuard\Location\Providers\GeolocationProviderChain;
 use JoseQuembi\AngolaGeoGuard\Location\Providers\NullGeolocationProvider;
 use JoseQuembi\AngolaGeoGuard\Location\Resolvers\IpLocationResolver;
 use JoseQuembi\AngolaGeoGuard\Location\Resolvers\ManualLocationResolver;
+use JoseQuembi\AngolaGeoGuard\Repositories\EloquentBehaviorProfileRepository;
+use JoseQuembi\AngolaGeoGuard\Security\Threat\CountermeasureEngine;
+use JoseQuembi\AngolaGeoGuard\Security\Threat\ThreatScorer;
+use JoseQuembi\AngolaGeoGuard\Security\Threat\ThreatScorerConfig;
 use JoseQuembi\AngolaGeoGuard\Security\TrustedProxyIpResolver;
+use JoseQuembi\AngolaGeoGuard\Services\BehaviorTrackingService;
 use JoseQuembi\AngolaGeoGuard\Services\GeoAccessPolicyEngine;
 use JoseQuembi\AngolaGeoGuard\Services\GeoRequestEvaluator;
 use JoseQuembi\AngolaGeoGuard\Spatial\InMemorySpatialEngine;
@@ -104,10 +113,44 @@ final class AngolaGeoGuardServiceProvider extends ServiceProvider
             return new GeoAccessPolicyEngine($app->make(SpatialEngineInterface::class));
         });
 
+        $this->app->bind(BehaviorProfileRepositoryInterface::class, EloquentBehaviorProfileRepository::class);
+
+        $this->app->singleton(ThreatScorer::class, function ($app) {
+            $config = $app['config'];
+
+            return new ThreatScorer(
+                config: ThreatScorerConfig::fromArray((array) $config->get('angola-geoguard.threat_detection.thresholds', [])),
+                windowMinutes: (int) $config->get('angola-geoguard.threat_detection.window_minutes', 15),
+                maxTrackedProvinces: (int) $config->get('angola-geoguard.threat_detection.max_tracked_provinces', 30),
+                maxTrackedCountries: (int) $config->get('angola-geoguard.threat_detection.max_tracked_countries', 10),
+            );
+        });
+
+        $this->app->singleton(CountermeasureEngine::class, function ($app) {
+            $config = $app['config'];
+
+            return new CountermeasureEngine(
+                baseQuarantineSeconds: (int) $config->get('angola-geoguard.threat_detection.base_quarantine_seconds', 900),
+                maxQuarantineSeconds: (int) $config->get('angola-geoguard.threat_detection.max_quarantine_seconds', 86400),
+                escalationFactor: (float) $config->get('angola-geoguard.threat_detection.escalation_factor', 2.0),
+            );
+        });
+
+        $this->app->singleton(BehaviorTrackingService::class, function ($app) {
+            return new BehaviorTrackingService(
+                repository: $app->make(BehaviorProfileRepositoryInterface::class),
+                scorer: $app->make(ThreatScorer::class),
+                countermeasures: $app->make(CountermeasureEngine::class),
+            );
+        });
+
         $this->app->singleton(GeoRequestEvaluator::class, function ($app) {
             return new GeoRequestEvaluator(
                 pipeline: $app->make(LocationResolutionPipeline::class),
                 policyEngine: $app->make(GeoAccessPolicyEngine::class),
+                behaviorTracking: (bool) $app['config']->get('angola-geoguard.threat_detection.enabled', true)
+                    ? $app->make(BehaviorTrackingService::class)
+                    : null,
             );
         });
     }
@@ -136,10 +179,12 @@ final class AngolaGeoGuardServiceProvider extends ServiceProvider
                 SyncCommand::class,
                 WarmCacheCommand::class,
                 ClearCacheCommand::class,
+                CalibrateCommand::class,
                 DiagnoseCommand::class,
                 AuditSummaryCommand::class,
                 PruneCommand::class,
                 RollbackDataCommand::class,
+                ThreatsCommand::class,
             ]);
         }
 
@@ -152,8 +197,7 @@ final class AngolaGeoGuardServiceProvider extends ServiceProvider
 
     private function registerMiddlewareAliases(): void
     {
-        /** @var \Illuminate\Routing\Router $router */
-        $router = $this->app['router'];
+        $router = $this->app->make(Router::class);
 
         $router->aliasMiddleware('geo.angola', EnsureRequestIsFromAngola::class);
         $router->aliasMiddleware('geo.province', EnsureRequestIsFromProvince::class);

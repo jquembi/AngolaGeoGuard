@@ -107,16 +107,22 @@ final class InMemorySpatialEngine implements SpatialEngineInterface
     /**
      * Algoritmo classico de ray-casting (even-odd rule).
      *
-     * @param  array<array{0: float, 1: float}>  $ring  [[lng, lat], ...]
+     * @param array<array{0: float, 1: float}> $ring [[lng, lat], ...]
      */
     private function rayCast(Coordinates $point, array $ring): bool
     {
+        $this->assertValidRing($ring);
+
         $inside = false;
         $count = count($ring);
 
         for ($i = 0, $j = $count - 1; $i < $count; $j = $i++) {
             [$lngI, $latI] = $ring[$i];
             [$lngJ, $latJ] = $ring[$j];
+
+            if ($this->pointOnSegment($point, (float) $lngI, (float) $latI, (float) $lngJ, (float) $latJ)) {
+                return true;
+            }
 
             $intersects = (($latI > $point->latitude) !== ($latJ > $point->latitude))
                 && ($point->longitude < ($lngJ - $lngI) * ($point->latitude - $latI) / ($latJ - $latI) + $lngI);
@@ -127,6 +133,38 @@ final class InMemorySpatialEngine implements SpatialEngineInterface
         }
 
         return $inside;
+    }
+
+    private function assertValidRing(array $ring): void
+    {
+        if (count($ring) < 4) {
+            throw InvalidGeometryException::malformed('anel de poligono deve ter pelo menos quatro posicoes');
+        }
+
+        foreach ($ring as $position) {
+            if (! is_array($position)
+                || count($position) < 2
+                || ! is_numeric($position[0])
+                || ! is_numeric($position[1])
+            ) {
+                throw InvalidGeometryException::malformed('anel contem coordenadas invalidas');
+            }
+        }
+    }
+
+    private function pointOnSegment(Coordinates $point, float $lngA, float $latA, float $lngB, float $latB): bool
+    {
+        $epsilon = 0.000000001;
+        $crossProduct = (($point->latitude - $latA) * ($lngB - $lngA)) - (($point->longitude - $lngA) * ($latB - $latA));
+
+        if (abs($crossProduct) > $epsilon) {
+            return false;
+        }
+
+        return $point->longitude >= min($lngA, $lngB) - $epsilon
+            && $point->longitude <= max($lngA, $lngB) + $epsilon
+            && $point->latitude >= min($latA, $latB) - $epsilon
+            && $point->latitude <= max($latA, $latB) + $epsilon;
     }
 
     private function boundingBoxOf(array $geometry): array

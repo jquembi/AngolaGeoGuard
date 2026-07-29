@@ -12,14 +12,15 @@ use Ramsey\Uuid\Uuid;
  * Regista a proveniencia de um conjunto de dados geograficos
  * (ver secao 5 do prompt mestre).
  *
- * @property int $id
- * @property string $uuid
- * @property string $name
- * @property string|null $responsible_entity
- * @property string|null $url
- * @property string|null $license
- * @property string $reference_system
- * @property string $validation_status
+ * @property int                             $id
+ * @property string                          $uuid
+ * @property string                          $name
+ * @property string|null                     $responsible_entity
+ * @property string|null                     $url
+ * @property string|null                     $license
+ * @property string                          $reference_system
+ * @property string                          $validation_status
+ * @property \Illuminate\Support\Carbon|null $last_updated_at
  */
 final class GeoDataSource extends Model
 {
