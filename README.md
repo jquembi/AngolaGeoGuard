@@ -437,7 +437,6 @@ O comando é somente leitura; ele não altera configuração automaticamente.
 
 ```bash
 php artisan geoguard:install
-php artisan geoguard:publish
 php artisan geoguard:seed-angola
 php artisan geoguard:import --file=fronteiras.geojson --source="Fonte" --version=2026.1
 php artisan geoguard:validate

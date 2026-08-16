@@ -13,7 +13,6 @@ use JoseQuembi\AngolaGeoGuard\Console\Commands\DiagnoseCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\ImportCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\InstallCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\PruneCommand;
-use JoseQuembi\AngolaGeoGuard\Console\Commands\PublishCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\RollbackDataCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\SeedAngolaCommand;
 use JoseQuembi\AngolaGeoGuard\Console\Commands\SyncCommand;
@@ -166,13 +165,8 @@ final class AngolaGeoGuardServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'angola-geoguard-migrations');
 
-            $this->publishes([
-                __DIR__.'/../resources/lang' => $this->app->langPath('vendor/angola-geoguard'),
-            ], 'angola-geoguard-lang');
-
             $this->commands([
                 InstallCommand::class,
-                PublishCommand::class,
                 SeedAngolaCommand::class,
                 ImportCommand::class,
                 ValidateCommand::class,
@@ -189,8 +183,6 @@ final class AngolaGeoGuardServiceProvider extends ServiceProvider
         }
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'angola-geoguard');
-        $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
 
         $this->registerMiddlewareAliases();
     }
