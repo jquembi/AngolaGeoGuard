@@ -67,11 +67,85 @@ O núcleo em `Core/`, `DTOs/`, `Enums/`, `Security/`, `Spatial/` e
 
 ## Instalação
 
+### Via Composer (Recomendado)
+
 ```bash
 composer require josequembi/angola-geoguard
 ```
 
-## Publicação da configuração e migrations
+### Versão de desenvolvimento (Se necessário)
+
+Se precisar de uma versão de desenvolvimento ou se a versão estável ainda não estiver disponível:
+
+```bash
+composer require josequembi/angola-geoguard:dev-main
+```
+
+Ou adicione manualmente ao seu `composer.json`:
+
+```json
+{
+    "require": {
+        "josequembi/angola-geoguard": "dev-main"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
+```
+
+### Instalação local (Para desenvolvimento)
+
+Se está a desenvolver o pacote localmente:
+
+```bash
+composer config repositories.local path ../AngolaGeoGuard
+composer require josequembi/angola-geoguard:@dev
+```
+
+### Solução de problemas de instalação
+
+**Erro: "Could not find a version of package matching your minimum-stability"**
+
+Este erro ocorre quando o Composer não encontra uma versão estável do pacote. Soluções:
+
+1. **Instalar versão de desenvolvimento:**
+   ```bash
+   composer require josequembi/angola-geoguard:dev-main
+   ```
+
+2. **Modificar minimum-stability temporariamente:**
+   ```bash
+   composer require josequembi/angola-geoguard:dev-main --prefer-stable
+   ```
+
+3. **Verificar se o pacote está no Packagist:**
+   ```bash
+   composer show josequembi/angola-geoguard
+   ```
+
+**Erro: "Package not found"**
+
+Se o pacote não for encontrado, verifique:
+- Está conectado à internet
+- O nome do pacote está correto: `josequembi/angola-geoguard`
+- O Packagist está acessível: `https://packagist.org/packages/josequembi/angola-geoguard`
+
+## Configuração pós-instalação
+
+### 1. Publicar o ServiceProvider (Laravel 10+)
+
+Adicione o ServiceProvider ao seu `config/app.php`:
+
+```php
+'providers' => [
+    // ...
+    JoseQuembi\AngolaGeoGuard\AngolaGeoGuardServiceProvider::class,
+],
+```
+
+**Nota:** No Laravel 11+, o ServiceProvider é automaticamente registrado via auto-discovery.
+
+### 2. Publicar configuração e migrations
 
 ```bash
 php artisan vendor:publish \
@@ -85,6 +159,17 @@ Também pode publicar apenas grupos específicos:
 ```bash
 php artisan vendor:publish --tag=angola-geoguard-config
 php artisan vendor:publish --tag=angola-geoguard-migrations
+```
+
+### 3. Publicar o Facade (Opcional)
+
+Se preferir usar o Facade, adicione ao seu `config/app.php`:
+
+```php
+'aliases' => [
+    // ...
+    'GeoGuard' => JoseQuembi\AngolaGeoGuard\Facades\GeoGuard::class,
+],
 ```
 
 ## Configuração básica
